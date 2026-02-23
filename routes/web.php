@@ -6,6 +6,11 @@ use App\Pipeline\Engine;
 use App\Pipeline\Lint\Linter;
 use App\LLM\LMStudioClient;
 
+// Get LM Studio URL - works in Docker (host.docker.internal) or local
+function getLmStudioUrl(): string {
+    return getenv('LM_STUDIO_URL') ?: 'http://localhost:1234/api/v0';
+}
+
 // Simple GET route for testing (no CSRF)
 Route::get('/factory/run/{file}', function ($file) {
     $path = base_path("examples/{$file}");
@@ -19,7 +24,7 @@ Route::get('/factory/run/{file}', function ($file) {
     $graph = $parser->parse($dot);
     
     $engine = new Engine();
-    $llm = new LMStudioClient('http://localhost:1234/api/v0', 'qwen3-14b');
+    $llm = new LMStudioClient(getLmStudioUrl(), 'qwen3-14b');
     $engine->setLLM($llm);
     
     // Find start node
@@ -141,7 +146,7 @@ Route::post('/factory/run', function (\Illuminate\Http\Request $request) {
     $graph = $parser->parse($dot);
     
     $engine = new Engine();
-    $llm = new LMStudioClient('http://localhost:1234/api/v0', $model);
+    $llm = new LMStudioClient(getLmStudioUrl(), $model);
     $engine->setLLM($llm);
     
     // Find start node
@@ -226,7 +231,7 @@ Route::post('/factory/approve', function (\Illuminate\Http\Request $request) {
     
     // Create new engine and provide approval
     $engine = new Engine();
-    $llm = new LMStudioClient('http://localhost:1234/api/v0', 'qwen3-14b');
+    $llm = new LMStudioClient(getLmStudioUrl(), 'qwen3-14b');
     $engine->setLLM($llm);
     $engine->provideApproval($nodeId, strtolower($decision) === 'approved');
     

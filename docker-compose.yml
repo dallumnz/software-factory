@@ -11,6 +11,8 @@ services:
     volumes:
       - .:/var/www/html
       - ../:/host/projects:ro  # Mount project directories read-only
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       - APP_ENV=local
       - APP_DEBUG=true
@@ -19,6 +21,7 @@ services:
       - DB_DATABASE=software_factory
       - DB_USERNAME=sail
       - DB_PASSWORD=password
+      - LM_STUDIO_URL=http://host.docker.internal:1234/api/v0
     depends_on:
       - db
     networks:
