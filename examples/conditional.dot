@@ -1,0 +1,17 @@
+digraph conditional_example {
+    graph [goal="Check tests and route accordingly", label="Conditional Pipeline"]
+    
+    start [shape=Mdiamond]
+    run_tests [shape=box, prompt="Run test suite"]
+    check_result [shape=diamond, condition="tests_pass"]
+    success [shape=box, prompt="Tests passed - proceed"]
+    failed [shape=box, prompt="Tests failed - fix issues"]
+    end [shape=Msquare]
+    
+    start -> run_tests
+    run_tests -> check_result
+    check_result -> success [label="true"]
+    check_result -> failed [label="false"]
+    success -> end
+    failed -> end
+}

@@ -1,0 +1,17 @@
+digraph approval_example {
+    graph [goal="Generate code with human approval", label="Human Approval Pipeline"]
+    
+    start [shape=Mdiamond]
+    generate [shape=box, prompt="Generate code for new feature"]
+    review [shape=hexagon, label="Human Review"]
+    approved [shape=box, prompt="Code approved - finalize"]
+    rejected [shape=box, prompt="Code rejected - revise"]
+    end [shape=Msquare]
+    
+    start -> generate
+    generate -> review
+    review -> approved [label="approved"]
+    review -> rejected [label="rejected"]
+    approved -> end
+    rejected -> end
+}

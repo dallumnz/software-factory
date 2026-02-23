@@ -1,0 +1,14 @@
+digraph tool_example {
+    graph [goal="Read and analyze code", label="Tool Pipeline"]
+    
+    start [shape=Mdiamond]
+    read_config [shape=parallelogram, tool="read_file", path="composer.json"]
+    list_src [shape=parallelogram, tool="list_dir", path="app"]
+    analyze [shape=box, prompt="Analyze: config={{tool_result_read_config}}, src files={{tool_result_list_src}}"]
+    end [shape=Msquare]
+    
+    start -> read_config
+    read_config -> list_src
+    list_src -> analyze
+    analyze -> end
+}

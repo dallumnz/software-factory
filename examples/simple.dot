@@ -1,0 +1,15 @@
+digraph software_factory {
+    graph [goal="Analyze and improve code", label="Code Analysis Pipeline"]
+    
+    start [shape=Mdiamond]
+    analyze [shape=box, prompt="Analyze this code"]
+    suggest [shape=box, prompt="Suggest improvements"]
+    review [shape=hexagon, label="Human Review"]
+    finish [shape=Msquare]
+    
+    start -> analyze
+    analyze -> suggest
+    suggest -> review
+    review -> analyze [label="rejected"]
+    review -> finish [label="approved"]
+}

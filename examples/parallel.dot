@@ -1,0 +1,20 @@
+digraph parallel_test {
+    graph [goal="Run tests in parallel", label="Parallel Test Pipeline"]
+    
+    start [shape=Mdiamond]
+    parallel_tests [shape=component, label="Run Tests"]
+    unit [shape=box, prompt="Run unit tests"]
+    integration [shape=box, prompt="Run integration tests"]
+    e2e [shape=box, prompt="Run E2E tests"]
+    collect [shape=tripleoctagon, label="Collect Results"]
+    end [shape=Msquare]
+    
+    start -> parallel_tests
+    parallel_tests -> unit
+    parallel_tests -> integration
+    parallel_tests -> e2e
+    unit -> collect
+    integration -> collect
+    e2e -> collect
+    collect -> end
+}

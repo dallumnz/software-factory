@@ -1,0 +1,12 @@
+digraph manager_example {
+    graph [goal="Analyze codebase with multiple agents", label="Manager Loop Pipeline"]
+    
+    start [shape=Mdiamond]
+    parallel_analyze [shape=house, agent="coder", task_1="Find all PHP files", task_2="Find security issues", task_3="Check for code smells"]
+    merge [shape=box, prompt="Merge findings from agents: {{manager_results_parallel_analyze}}"]
+    end [shape=Msquare]
+    
+    start -> parallel_analyze
+    parallel_analyze -> merge
+    merge -> end
+}
