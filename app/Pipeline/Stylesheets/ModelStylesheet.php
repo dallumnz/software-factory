@@ -26,8 +26,8 @@ class ModelStylesheet
         $this->register('qwen3-14b', [
             'temperature' => 0.3,
             'max_tokens' => 4096,
-            'prompt_prefix' => "You are a coding assistant. Write clean, efficient code.\n\n",
-            'prompt_suffix' => "\n\nProvide the code only, without explanation unless asked.",
+            'prompt_prefix' => "You are an expert PHP/Laravel developer. Write clean, modern PHP code.\n\n",
+            'prompt_suffix' => "\n\nProvide the code only, without explanation unless asked. Prefer PHP Laravel patterns.",
         ]);
         
         $this->register('qwen/qwen3-coder-30b', [

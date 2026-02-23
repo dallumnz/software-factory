@@ -30,7 +30,7 @@ class RunPipelineCommand extends Command
         $dotFile = $this->argument('file');
         $dotString = $this->option('dot');
         $provider = $this->option('provider') ?? 'lmstudio';
-        $model = $this->option('model') ?? 'qwen3-14b';
+        $model = $this->option('model') ?? 'ibm/granite-4-h-tiny';
         $contextJson = $this->option('context');
         $approveNode = $this->option('approve');
         $decision = $this->option('decision') ?? 'approved';
