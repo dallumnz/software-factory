@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: software-factory
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/var/www/html
+      - ../:/host/projects:ro  # Mount project directories read-only
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_DATABASE=software_factory
+      - DB_USERNAME=sail
+      - DB_PASSWORD=password
+    depends_on:
+      - db
+    networks:
+      - sail
+    restart: unless-stopped
+
+  db:
+    image: mysql:8.0
+    container_name: software-factory-db
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=software_factory
+      - MYSQL_USER=sail
+      - MYSQL_PASSWORD=password
+    volumes:
+      - sailmysql:/var/lib/mysql
+    networks:
+      - sail
+    restart: unless-stopped
+
+networks:
+  sail:
+    driver: bridge
+
+volumes:
+  sailmysql:
