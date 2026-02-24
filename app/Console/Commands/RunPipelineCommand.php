@@ -8,13 +8,14 @@ use App\Pipeline\Engine;
 use App\Pipeline\Stylesheets\ModelStylesheet;
 use App\LLM\LMStudioClient;
 use App\LLM\OllamaClient;
+use App\LLM\OpenCodeZenClient;
 use App\LLM\ProviderManager;
 
 class RunPipelineCommand extends Command
 {
     protected $signature = 'factory:run {file? : The DOT file to run}
                             {--dot= : Inline DOT graph}
-                            {--provider=lmstudio : LLM provider (lmstudio, ollama)}
+                            {--provider=lmstudio : LLM provider (lmstudio, ollama, opencode-zen)}
                             {--model= : Model to use}
                             {--context= : JSON context to pass}
                             {--approve= : Node ID to auto-approve (e.g., --approve=review)}
@@ -30,7 +31,7 @@ class RunPipelineCommand extends Command
         $dotFile = $this->argument('file');
         $dotString = $this->option('dot');
         $provider = $this->option('provider') ?? 'lmstudio';
-        $model = $this->option('model') ?? 'ibm/granite-4-h-tiny';
+        $model = $this->option('model') ?? 'qwen3-14b';
         $contextJson = $this->option('context');
         $approveNode = $this->option('approve');
         $decision = $this->option('decision') ?? 'approved';
@@ -67,6 +68,7 @@ class RunPipelineCommand extends Command
         $llm = match($provider) {
             'ollama' => new OllamaClient('http://localhost:11434', $model),
             'lmstudio' => new LMStudioClient('http://localhost:1234/api/v0', $model),
+            'opencode-zen' => new OpenCodeZenClient('https://opencode.ai/zen/v1', $model),
             default => new LMStudioClient('http://localhost:1234/api/v0', $model),
         };
 

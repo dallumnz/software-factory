@@ -4,12 +4,25 @@ namespace App\LLM;
 
 use App\LLM\ClientInterface;
 
-class LMStudioClient implements ClientInterface
+class OpenCodeZenClient implements ClientInterface
 {
+    protected string $apiKey;
+    
     public function __construct(
-        protected string $baseUrl = 'http://localhost:1234/api/v0',
-        public string $model = 'qwen3-14b',
-    ) {}
+        protected string $baseUrl = 'https://opencode.ai/zen/v1',
+        public string $model = 'kimi-k2.5',
+        string $apiKey = ''
+    ) {
+        // Try to load API key from auth file if not provided
+        if (empty($apiKey)) {
+            $authFile = $_SERVER['HOME'] . '/.local/share/opencode/auth.json';
+            if (file_exists($authFile)) {
+                $auth = json_decode(file_get_contents($authFile), true);
+                $apiKey = $auth['opencode']['key'] ?? '';
+            }
+        }
+        $this->apiKey = $apiKey;
+    }
     
     public function complete(string $prompt, array $options = []): string
     {
@@ -44,14 +57,12 @@ class LMStudioClient implements ClientInterface
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
             'model' => $model,
-            'messages' => [
-                ['role' => 'user', 'content' => $prompt]
-            ],
+            'messages' => $options['messages'] ?? [['role' => 'user', 'content' => $prompt]],
             'stream' => true,
         ]));
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 120);
         curl_setopt($ch, CURLOPT_WRITEFUNCTION, function($ch, $chunk) use ($onChunk) {
             $lines = explode("\n", trim($chunk));
             foreach ($lines as $line) {
@@ -72,7 +83,7 @@ class LMStudioClient implements ClientInterface
         curl_close($ch);
         
         if ($error) {
-            throw new \RuntimeException("LM Studio request failed: {$error}");
+            throw new \RuntimeException("OpenCode Zen request failed: {$error}");
         }
     }
     
@@ -83,16 +94,24 @@ class LMStudioClient implements ClientInterface
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $this->apiKey,
+        ]);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 60); // 60 second timeout for LLM responses
+        curl_setopt($ch, CURLOPT_TIMEOUT, 120);
         
         $response = curl_exec($ch);
         $error = curl_error($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
         
         if ($error) {
-            throw new \RuntimeException("LM Studio request failed: {$error}");
+            throw new \RuntimeException("OpenCode Zen request failed: {$error}");
+        }
+        
+        if ($httpCode !== 200) {
+            throw new \RuntimeException("OpenCode Zen API error (HTTP {$httpCode}): {$response}");
         }
         
         return json_decode($response, true) ?? [];

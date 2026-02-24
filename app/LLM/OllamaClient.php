@@ -15,6 +15,20 @@ class OllamaClient implements ClientInterface
     {
         $model = $options['model'] ?? $this->model;
         
+        // Use chat endpoint if messages provided, otherwise use generate
+        $messages = $options['messages'] ?? [];
+        
+        if (!empty($messages)) {
+            // Use /api/chat for message-based conversations
+            $response = $this->request('/api/chat', [
+                'model' => $model,
+                'messages' => $messages,
+                'stream' => false,
+            ]);
+            return $response['message']['content'] ?? '';
+        }
+        
+        // Fall back to /api/generate for simple prompts
         $response = $this->request('/api/generate', [
             'model' => $model,
             'prompt' => $prompt,

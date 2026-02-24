@@ -12,6 +12,7 @@ class Engine
 {
     protected array $handlers = [];
     protected array $context = [];
+    protected array $tools = [];
     protected ?Graph $graph = null;
     protected ?ClientInterface $llm = null;
     protected ?Session $session = null;
@@ -23,6 +24,18 @@ class Engine
     public function __construct()
     {
         $this->registerDefaultHandlers();
+        $this->registerDefaultTools();
+    }
+    
+    /**
+     * Register default available tools.
+     */
+    protected function registerDefaultTools(): void
+    {
+        // Use bash for all file operations - simpler and more reliable
+        $this->tools = [
+            'bash' => 'Execute any shell command. Use bash for file operations ONLY. Use echo, printf, or cat to write/read files. NEVER use python, perl or other languages.',
+        ];
     }
     
     /**
@@ -107,6 +120,18 @@ class Engine
     {
         $this->llm = $llm;
         $this->session = new Session($llm);
+        $this->session->setTools($this->tools);
+    }
+    
+    /**
+     * Set available tools for the agent session.
+     */
+    public function setTools(array $tools): void
+    {
+        $this->tools = $tools;
+        if ($this->session) {
+            $this->session->setTools($tools);
+        }
     }
     
     /**
